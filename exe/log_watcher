@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+require "bundler/setup"
+require "sugoi_log_watcher"
+
+begin
+  SugoiLogWatcher::Cli.start(ARGV)
+rescue SugoiLogWatcher::EmptyCmdArgs => e
+  $stderr.puts [e.message, e.backtrace].join("\n")
+  exit(1)
+end
