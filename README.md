@@ -1,8 +1,13 @@
 # SugoiLogWatcher
+* 開発環境でパフォーマンス改善中に使うのを想定している
+* 機能
+  * railsのログを収集し、実行速度が閾値を超える行を通知します
+    * スロークエリ
+    * レンダリング
+  * N+1 の検出
+  * select 回数を通知する
+  * 通知するフォーマットを設定ファイルで定義ができて、プロセスの再起動なしで設定ファイルを適宜読み込んで出力を変更する
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/sugoi_log_watcher`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
 
 ## Installation
 
