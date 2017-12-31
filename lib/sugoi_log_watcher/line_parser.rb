@@ -23,7 +23,14 @@ module SugoiLogWatcher
     end
 
     def parse_rendering_log
-      RenderingObject.new({})
+      @line
+      %r!\#(\d+?)\][^:]+?:   Rendered (.+?) \(([0-9.]+?)ms\)! =~ @line
+      pid = $1
+      path = $2
+      msec = $3
+      RenderingObject.new({
+        pid: pid, path: path, msec: msec
+      })
     end
   end
 end
