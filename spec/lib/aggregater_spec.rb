@@ -3,38 +3,29 @@ require 'spec_helper'
 RSpec.describe SugoiLogWatcher::Aggregater do
   let(:single_log) do
     <<~EOH
-      I, [2017-12-26T00:01:52.910919 #36002]  INFO -- : Processing by WelcomeController#index as HTML
-      I, [2017-12-26T00:01:52.910984 #36002]  INFO -- :   Parameters: {"locale"=>"ja"}
-      I, [2017-12-26T00:01:52.927847 #36002]  INFO -- :   Rendering welcome/index.html.haml within layouts/welcome
-      I, [2017-12-26T00:01:53.115696 #36002]  INFO -- :   Rendered welcome/_cambanner.html.haml (142.0ms)
-      I, [2017-12-26T00:01:53.205907 #36002]  INFO -- :   Rendered welcome/ner.html.haml (3.0ms)
-      I, [2017-12-26T00:01:53.250664 #36002]  INFO -- :   Rendered welcome/_priist.html.haml (43.1ms)
-      I, [2017-12-26T00:01:53.256200 #36002]  INFO -- :   Rendered welcome/_stet.html.haml (3.8ms)
-      I, [2017-12-26T00:01:53.260360 #36002]  INFO -- :   Rendered welcome/_conn_buttons.html.haml (2.5ms)
-      I, [2017-12-26T00:01:53.274551 #36002]  INFO -- :   Rendered welcome/_newom.html.haml (12.7ms)
-      I, [2017-12-26T00:01:53.283143 #36002]  INFO -- :   Rendered welcome/index.html.haml within layouts/welcome (355.1ms)
-      I, [2017-12-26T00:01:53.304500 #36002]  INFO -- :   Rendered shared/_google_tag_manager.html.haml (3.4ms)
-      D, [2017-12-26T00:01:53.560890 #36002] DEBUG -- : source=rack-timeout id=1b32e744ab93e1fbbb84135f88d11ce1 timeout=28000ms service=2014ms state=active
-      D, [2017-12-26T00:01:54.556938 #36002] DEBUG -- : source=rack-timeout id=1b32e744ab93e1fbbb84135f88d11ce1 timeout=28000ms service=3010ms state=active
-      D, [2017-12-26T00:01:55.553579 #36002] DEBUG -- : source=rack-timeout id=1b32e744ab93e1fbbb84135f88d11ce1 timeout=28000ms service=4006ms state=active
-      D, [2017-12-26T00:01:56.556649 #36002] DEBUG -- : source=rack-timeout id=1b32e744ab93e1fbbb84135f88d11ce1 timeout=28000ms service=5009ms state=active
-      I, [2017-12-26T00:01:57.403712 #36002]  INFO -- :   Rendered shared/_e.html.haml (3.1ms)
-      D, [2017-12-26T00:01:57.554118 #36002] DEBUG -- : source=rack-timeout id=1b32e744ab93e1fbbb84135f88d11ce1 timeout=28000ms service=6007ms state=active
-      I, [2017-12-26T00:01:58.149344 #36002]  INFO -- :   Rendered layouts/_airbrake_js.html.haml (1.7ms)
-      I, [2017-12-26T00:01:58.153637 #36002]  INFO -- :   Rendered layouts/_rem.ja.html.haml (2.9ms)
-      I, [2017-12-26T00:01:58.157245 #36002]  INFO -- :   Rendered shared/_olark.html.haml (2.2ms)
-      I, [2017-12-26T00:01:58.160268 #36002]  INFO -- :   Rendered shared/_vwo.html.haml (1.4ms)
-      I, [2017-12-26T00:01:58.161598 #36002]  INFO -- :   Rendered shared/_gr.html.haml (0.0ms)
-      I, [2017-12-26T00:01:58.165296 #36002]  INFO -- :   Rendered shared/_fde.html.haml (2.3ms)
-      I, [2017-12-26T00:01:58.178089 #36002]  INFO -- :   Rendered layouts/_topbar.html.haml (11.3ms)
-      I, [2017-12-26T00:01:58.213485 #36002]  INFO -- :   Rendered layouts/__list.html.haml (20.9ms)
-      I, [2017-12-26T00:01:58.214094 #36002]  INFO -- :   Rendered layouts/_.html.haml (34.6ms)
-      I, [2017-12-26T00:01:58.222729 #36002]  INFO -- :   Rendered layouts/_s.html.haml (6.8ms)
-      I, [2017-12-26T00:01:58.270726 #36002]  INFO -- :   Rendered layouts/_tent.html.haml (46.4ms)
-      I, [2017-12-26T00:01:58.276706 #36002]  INFO -- :   Rendered layouts/_html.haml (3.8ms)
-      I, [2017-12-26T00:01:58.283101 #36002]  INFO -- :   Rendered layouts/gg_html.haml (3.7ms)
-      I, [2017-12-26T00:01:58.289100 #36002]  INFO -- :   Rendered shared/_yanager.html.haml (4.3ms)
-      I, [2017-12-26T00:01:58.290110 #36002]  INFO -- : Completed 200 OK in 5379ms (Views: 5367.3ms | ActiveRecord: 0.0ms)
+      I, [2017-12-31T17:17:43.078024 #52408]  INFO -- : Started POST "/login" for 127.0.0.1 at 2017-12-31 17:17:43 +0900
+      I, [2017-12-31T17:17:43.080320 #52408]  INFO -- : Processing by SessionController#create as HTML
+      I, [2017-12-31T17:17:43.080393 #52408]  INFO -- :   Parameters: {"utf8"=>"✓", "authenticity_token"=>"XHy9TVK+", "path"=>"", "email"=>"sample@sample.com", "password"=>"[FILTERED]", "commit"=>"ログイン"}
+      D, [2017-12-31T17:17:43.183631 #52408] DEBUG -- :   Account Load (6.9ms)  SELECT  `accounts`.* FROM `accounts` WHERE `accounts`.`email` = 'sample@sample.com' ORDER BY `accounts`.`id` ASC LIMIT 1
+      I, [2017-12-31T17:17:43.186163 #52408]  INFO -- :   Rendering session/new.html.haml within layouts/welcome
+      I, [2017-12-31T17:17:43.197143 #52408]  INFO -- :   Rendered layouts/_ie_dialog.ja.html.haml (6.0ms)
+      I, [2017-12-31T17:17:43.197495 #52408]  INFO -- :   Rendered session/new.html.haml within layouts/welcome (11.3ms)
+      I, [2017-12-31T17:17:43.212764 #52408]  INFO -- :   Rendered shared/_goog.html.haml (2.4ms)
+      I, [2017-12-31T17:17:43.219046 #52408]  INFO -- :   Rendered shared/_es5_shim.haml (1.2ms)
+      I, [2017-12-31T17:17:43.225821 #52408]  INFO -- :   Rendered layouts/_airbrake_js.html.haml (1.4ms)
+      I, [2017-12-31T17:17:43.229540 #52408]  INFO -- :   Rendered layouts/_rem.ja.html.haml (2.6ms)
+      I, [2017-12-31T17:17:43.232852 #52408]  INFO -- :   Rendered shared/_ok.html.haml (1.7ms)
+      I, [2017-12-31T17:17:43.234780 #52408]  INFO -- :   Rendered shared/_v.html.haml (0.9ms)
+      I, [2017-12-31T17:17:43.235821 #52408]  INFO -- :   Rendered shared/_google_tag_manager.html.haml (0.0ms)
+      I, [2017-12-31T17:17:43.238552 #52408]  INFO -- :   Rendered shared/_faceb.html.haml (1.7ms)
+      I, [2017-12-31T17:17:43.244562 #52408]  INFO -- :   Rendered layouts/_topb.html.haml (5.0ms)
+      I, [2017-12-31T17:17:43.251875 #52408]  INFO -- :   Rendered layouts/_navi.html.haml (6.1ms)
+      I, [2017-12-31T17:17:43.256497 #52408]  INFO -- :   Rendered layouts/_brea.html.haml (3.1ms)
+      I, [2017-12-31T17:17:43.268275 #52408]  INFO -- :   Rendered layouts/_foo.html.haml (10.5ms)
+      I, [2017-12-31T17:17:43.271796 #52408]  INFO -- :   Rendered layouts/_cop.html.haml (2.1ms)
+      I, [2017-12-31T17:17:43.274854 #52408]  INFO -- :   Rendered layouts/_bot.html.haml (2.0ms)
+      I, [2017-12-31T17:17:43.278307 #52408]  INFO -- :   Rendered shared/_yaho.html.haml (1.9ms)
+      I, [2017-12-31T17:17:43.278759 #52408]  INFO -- : Completed 200 OK in 198ms (Views: 94.6ms | ActiveRecord: 98.0ms)
     EOH
   end
 

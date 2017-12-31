@@ -6,7 +6,7 @@ module SugoiLogWatcher
     end
 
     def add(line)
-      @buffer << line
+      @buffer << SugoiLogWatcher::LineParser.new(line).parse
     end
 
     def complated
@@ -19,8 +19,11 @@ module SugoiLogWatcher
     end
 
     def aggregate
-      # TODO
-      # ここで
+      chunk = {}
+      @buffer.each { |object| (chunk[object.pid] ||= []); chunk[object.pid] << object }
+      valid_request = {}
+      chunk.each do |pid, objects|
+      end
     end
   end
 end
