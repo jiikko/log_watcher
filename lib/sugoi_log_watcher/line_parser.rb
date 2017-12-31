@@ -6,11 +6,11 @@ module SugoiLogWatcher
 
     def parse
       params = {}
-      params[:type] = 
+      params[:type] =
         case
         when /INFO -- : Started/ =~ @line
           :start
-        when /Views/ =~ @line && /ActiveRecord/ =~ @line
+        when /Completed/ =~ @line
           :end
         else
           :message

@@ -7,22 +7,14 @@ module SugoiLogWatcher
   end
 
   class Aggregater
+    attr_accessor :complated, :buffer
     def initialize
       @buffer = []
-      @compited = []
+      self.complated = []
     end
 
     def add(line)
       @buffer << SugoiLogWatcher::LineParser.new(line).parse
-    end
-
-    def complated
-      @compited
-      [1]
-    end
-
-    def buffer
-      @buffer
     end
 
     def aggregate
@@ -38,12 +30,16 @@ module SugoiLogWatcher
           if object.type == :start
             request.valid = true
           end
-          if object.type == :end
+          # 他のプロセスのendのみが残っている場合、削除する
+          if !request.valid && object.type == :end
+            request.logs = []
+          end
+          if request.valid && object.type == :end
             break
           end
         end
       end
-      valid_requests.find_all(&:valid)
+      valid_requests.find_all(&:valid).each { |x| complated << x }
     end
   end
 end
