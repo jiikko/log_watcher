@@ -15,11 +15,13 @@ module SugoiLogWatcher
         else
           :message
         end
+      %r!\[(.+?)\s\#(\d+?)\]! =~ @line
+      timestamp = $1
+      pid = $2
 
-      %r!\#(\d+?)\][^:]+?:   Rendered (.+?) \(([0-9.]+?)ms\)! =~ @line
-      pid  = $1
-      path = $2
-      msec = $3
+      %r!Rendered (.+?) \(([0-9.]+?)ms\)! =~ @line
+      path = $1
+      msec = $2
       PersedObject.new(
         params.merge(pid: pid, path: path, msec: msec)
       )
