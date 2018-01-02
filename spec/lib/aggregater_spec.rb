@@ -64,8 +64,9 @@ RSpec.describe SugoiLogWatcher::Aggregater do
       aggregater = SugoiLogWatcher::Aggregater.new
       log.split("\n").each { |l| aggregater.add(l) }
       aggregater.aggregate
-      binding.pry
       expect(aggregater.complated.size).to eq(2)
+      # pid はrequest に集約されること
+      aggregater.complated.each { |request| expect(request.logs.map(&:pid).uniq).to eq([nil]) }
     end
   end
 end

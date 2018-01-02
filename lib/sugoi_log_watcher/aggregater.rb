@@ -1,8 +1,15 @@
 module SugoiLogWatcher
   class Request
-    attr_accessor :valid, :logs
+    attr_accessor :valid, :logs, :pid
     def initialize
       self.logs = []
+    end
+
+    def remove_pid_from_logs
+      self.pid = logs.first.pid
+      logs.each do |log_line|
+        log_line.pid = nil
+      end
     end
   end
 
@@ -35,6 +42,7 @@ module SugoiLogWatcher
             request.logs = []
           end
           if request.valid && object.type == :end
+            request.remove_pid_from_logs
             break
           end
         end
