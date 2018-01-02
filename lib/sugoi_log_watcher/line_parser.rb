@@ -27,5 +27,17 @@ module SugoiLogWatcher
         params.merge(pid: pid, path: path, msec: msec)
       )
     end
+
+    def valid?
+      ignore_patterns = [
+        /rack-timeou/,
+        ]
+      ignore_patterns.each do |pattern|
+        if pattern =~ @line
+          return false
+        end
+      end
+      return true
+    end
   end
 end

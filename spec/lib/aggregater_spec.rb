@@ -74,7 +74,6 @@ RSpec.describe SugoiLogWatcher::Aggregater do
 
       lines_57530 = <<~EOH
         I, [2017-12-31T18:52:23.409787 #57530]  INFO -- : Started GET "/api/a/accounts/864/notifications/status" for ::1 at 2017-12-31 18:52:23 +0900
-        D, [2017-12-31T18:52:23.409879 #57530] DEBUG -- : source=rack-timeout id=42ea6104ec6a774a6a547e0b978b140e timeout=280000000000ms service=0ms state=active
         I, [2017-12-31T18:52:23.412411 #57530]  INFO -- : Processing by Internal::Albatross::Account::NotificationsController#status as JSON
         I, [2017-12-31T18:52:23.412665 #57530]  INFO -- :   Parameters: {"account_id"=>"864"}
         D, [2017-12-31T18:52:23.426091 #57530] DEBUG -- :   Account Load (12.1ms)  SELECT  `accounts`.* FROM `accounts` WHERE `accounts`.`id` = 864 LIMIT 1

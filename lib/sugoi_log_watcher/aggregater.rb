@@ -21,7 +21,10 @@ module SugoiLogWatcher
     end
 
     def add(line)
-      @buffer << SugoiLogWatcher::LineParser.new(line).parse
+      line_parser = SugoiLogWatcher::LineParser.new(line)
+      if line_parser.valid?
+        @buffer << line_parser.parse
+      end
     end
 
     def aggregate
