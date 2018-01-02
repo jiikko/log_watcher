@@ -6,7 +6,7 @@ module SugoiLogWatcher
     end
 
     def remove_pid_from_logs
-      self.pid = logs.first.pid
+      self.pid = logs.first.pid.to_i
       logs.each do |log_line|
         log_line.pid = nil
       end
@@ -33,14 +33,15 @@ module SugoiLogWatcher
         request.valid = false
         valid_requests << request
         objects.each do |object|
-          request.logs.push(object)
           if object.type == :start
             request.valid = true
           end
+          request.logs.push(object) if request.valid
           # 他のプロセスのendのみが残っている場合、削除する
           if !request.valid && object.type == :end
             request.logs = []
           end
+          # ログの探索を終了する
           if request.valid && object.type == :end
             request.remove_pid_from_logs
             break

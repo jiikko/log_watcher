@@ -67,6 +67,10 @@ RSpec.describe SugoiLogWatcher::Aggregater do
       expect(aggregater.complated.size).to eq(2)
       # pid はrequest に集約されること
       aggregater.complated.each { |request| expect(request.logs.map(&:pid).uniq).to eq([nil]) }
+      expect(aggregater.complated.map(&:pid)).to match_array([57531, 57530])
+      # 別セッションのmesasgeが入ってこないこと
+      aggregater.complated.each { |request| expect(request.logs.first.type).to eq(:start) }
+      aggregater.complated.each { |request| expect(request.logs.last.type).to eq(:end) }
     end
   end
 end
