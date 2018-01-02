@@ -6,6 +6,7 @@ module SugoiLogWatcher
 
     def parse
       params = {}
+      params[:raw_data] = @line
       params[:type] =
         case
         when /INFO -- : Started/ =~ @line

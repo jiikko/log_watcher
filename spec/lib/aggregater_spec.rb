@@ -71,6 +71,26 @@ RSpec.describe SugoiLogWatcher::Aggregater do
       # 別セッションのmesasgeが入ってこないこと
       aggregater.complated.each { |request| expect(request.logs.first.type).to eq(:start) }
       aggregater.complated.each { |request| expect(request.logs.last.type).to eq(:end) }
+
+      lines_57530 = <<~EOH
+        I, [2017-12-31T18:52:23.409787 #57530]  INFO -- : Started GET "/api/a/accounts/864/notifications/status" for ::1 at 2017-12-31 18:52:23 +0900
+        D, [2017-12-31T18:52:23.409879 #57530] DEBUG -- : source=rack-timeout id=42ea6104ec6a774a6a547e0b978b140e timeout=280000000000ms service=0ms state=active
+        I, [2017-12-31T18:52:23.412411 #57530]  INFO -- : Processing by Internal::Albatross::Account::NotificationsController#status as JSON
+        I, [2017-12-31T18:52:23.412665 #57530]  INFO -- :   Parameters: {"account_id"=>"864"}
+        D, [2017-12-31T18:52:23.426091 #57530] DEBUG -- :   Account Load (12.1ms)  SELECT  `accounts`.* FROM `accounts` WHERE `accounts`.`id` = 864 LIMIT 1
+        D, [2017-12-31T18:52:23.429031 #57530] DEBUG -- :    (0.4ms)  SELECT COUNT(*) FROM `notifications` WHERE `notifications`.`account_id` = 864 AND (read_at IS NULL)
+        I, [2017-12-31T18:52:23.429654 #57530]  INFO -- : Completed 200 OK in 17ms (Views: 0.1ms | ActiveRecord: 12.5ms)
+      EOH
+      expect(aggregater.complated.find { |x| x.pid == 57530 }.logs.map(&:raw_data).join("\n")).to eq(lines_57530.strip)
+      lines_57531 = <<~EOH
+        I, [2017-12-31T18:52:23.408871 #57531]  INFO -- : Started GET "/api/a/accounts/864/notifications?need_render=summary&page_size=5&type=unread" for ::1 at 2017-12-31 18:52:23 +0900
+        I, [2017-12-31T18:52:23.412544 #57531]  INFO -- : Processing by Internal::Albatross::Account::NotificationsController#index as JSON
+        I, [2017-12-31T18:52:23.412764 #57531]  INFO -- :   Parameters: {"need_render"=>"summary", "page_size"=>"5", "type"=>"unread", "account_id"=>"864"}
+        D, [2017-12-31T18:52:23.414671 #57531] DEBUG -- :   Account Load (0.3ms)  SELECT  `accounts`.* FROM `accounts` WHERE `accounts`.`id` = 864 LIMIT 1
+        D, [2017-12-31T18:52:23.417662 #57531] DEBUG -- :   Notification Load (0.6ms)  SELECT  `notifications`.* FROM `notifications` WHERE `notifications`.`account_id` = 864 AND (read_at IS NULL) ORDER BY created_at DESC LIMIT 5 OFFSET 0
+        I, [2017-12-31T18:52:23.418187 #57531]  INFO -- : Completed 200 OK in 5ms (Views: 0.1ms | ActiveRecord: 0.9ms)
+      EOH
+      expect(aggregater.complated.find { |x| x.pid == 57531 }.logs.map(&:raw_data).join("\n")).to eq(lines_57531.strip)
     end
   end
 end
