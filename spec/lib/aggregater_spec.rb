@@ -91,7 +91,7 @@ RSpec.describe SugoiLogWatcher::Aggregater do
       EOH
 
       expect(aggregater.complated.find { |x| x.pid == 57531 }.logs.map(&:raw_data).join("\n")).to eq(lines_57531.strip)
-      expect(aggregater.complated.map.map{|x| x.logs.find_all{ |y| y.is_a?(SugoiLogWatcher::SQLObject) } }.flatten.map(&:sql).sort).to eq(
+      expect(aggregater.complated.map.map{|x| x.logs.find_all{ |y| y.is_a?(SugoiLogWatcher::ParsedObject::SQL) } }.flatten.map(&:sql).sort).to eq(
         ["SELECT  `accounts`.* FROM `accounts` WHERE `accounts`.`id` = N LIMIT N",
          "SELECT  `accounts`.* FROM `accounts` WHERE `accounts`.`id` = N LIMIT N",
          "SELECT  `notifications`.* FROM `notifications` WHERE `notifications`.`account_id` = N AND (read_at IS NULL) ORDER BY created_at DESC LIMIT N OFFSET N"].sort
