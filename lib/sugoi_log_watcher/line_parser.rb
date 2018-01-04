@@ -20,15 +20,8 @@ module SugoiLogWatcher
       timestamp = $1
       pid = $2
 
-      case instance_of(@line)
-      when :sql
-        ParsedObject::SQL.new(
-          params.merge(pid: pid)
-        )
-      else
-        ParsedObject::General.new(
-          params.merge(pid: pid)
-        )
+      initialize_klass_of(@line) do |klass|
+        klass.new(params.merge(pid: pid))
       end
     end
 
@@ -46,13 +39,15 @@ module SugoiLogWatcher
 
     private
 
-    def instance_of(line)
-      case
-      when line.include?('Load') && line.include?('SELECT')
-        :sql
-      else
-        :other
-      end
+    def initialize_klass_of(line)
+      klass =
+        case
+        when line.include?('Load') && line.include?('SELECT')
+          ParsedObject::SQL
+        else
+          ParsedObject::General
+        end
+      yield(klass)
     end
   end
 end
