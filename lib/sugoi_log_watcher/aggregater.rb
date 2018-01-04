@@ -1,6 +1,6 @@
 module SugoiLogWatcher
   class Request
-    attr_accessor :valid, :logs, :pid
+    attr_accessor :valid, :logs, :pid, :queries_count
     def initialize
       self.logs = []
     end
@@ -10,6 +10,17 @@ module SugoiLogWatcher
       logs.each do |log_line|
         log_line.pid = nil
       end
+    end
+
+    def count_queries
+      queryes = logs.find_all { |x| x.is_a?(SugoiLogWatcher::ParsedObject::SQL) }
+      queries_count = queryes.count
+      queryes_map = {}
+      queryes.each do |q|
+        queryes_map[q.sql] ||= 0
+        queryes_map[q.sql] += 1
+      end
+      queryes_map
     end
   end
 
@@ -47,6 +58,7 @@ module SugoiLogWatcher
           # ログの探索を終了する
           if request.valid && object.type == :end
             request.remove_pid_from_logs
+            request.count_queries
             break
           end
         end

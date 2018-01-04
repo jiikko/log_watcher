@@ -96,6 +96,9 @@ RSpec.describe SugoiLogWatcher::Aggregater do
          "SELECT  `accounts`.* FROM `accounts` WHERE `accounts`.`id` = N LIMIT N",
          "SELECT  `notifications`.* FROM `notifications` WHERE `notifications`.`account_id` = N AND (read_at IS NULL) ORDER BY created_at DESC LIMIT N OFFSET N"].sort
       )
+      aggregater.complated.each do |request|
+        expect(request.count_queries["SELECT  `accounts`.* FROM `accounts` WHERE `accounts`.`id` = N LIMIT N"]).to eq(1)
+      end
     end
   end
 end
