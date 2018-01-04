@@ -89,7 +89,13 @@ RSpec.describe SugoiLogWatcher::Aggregater do
         D, [2017-12-31T18:52:23.417662 #57531] DEBUG -- :   Notification Load (0.6ms)  SELECT  `notifications`.* FROM `notifications` WHERE `notifications`.`account_id` = 864 AND (read_at IS NULL) ORDER BY created_at DESC LIMIT 5 OFFSET 0
         I, [2017-12-31T18:52:23.418187 #57531]  INFO -- : Completed 200 OK in 5ms (Views: 0.1ms | ActiveRecord: 0.9ms)
       EOH
+
       expect(aggregater.complated.find { |x| x.pid == 57531 }.logs.map(&:raw_data).join("\n")).to eq(lines_57531.strip)
+      expect(aggregater.complated.map.map{|x| x.logs.find_all{ |y| y.is_a?(SugoiLogWatcher::SQLObject) } }.flatten.map(&:sql).sort).to eq(
+        ["SELECT  `accounts`.* FROM `accounts` WHERE `accounts`.`id` = N LIMIT N",
+         "SELECT  `accounts`.* FROM `accounts` WHERE `accounts`.`id` = N LIMIT N",
+         "SELECT  `notifications`.* FROM `notifications` WHERE `notifications`.`account_id` = N AND (read_at IS NULL) ORDER BY created_at DESC LIMIT N OFFSET N"].sort
+      )
     end
   end
 end
