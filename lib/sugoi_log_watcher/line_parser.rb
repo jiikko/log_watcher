@@ -1,4 +1,14 @@
 module SugoiLogWatcher
+  class SQLObject
+    attr_accessor :path, :raw_data, :msec, :pid, :type
+
+    def initialize(params)
+      @raw_data = params[:raw_data]
+      @pid = params[:pid]
+      @type = params[:type]
+    end
+  end
+
   class LineParser
     def initialize(line)
       @line = line
@@ -11,7 +21,7 @@ module SugoiLogWatcher
         case
         when /INFO -- : Started/ =~ @line
           :start
-        when /Completed/ =~ @line
+        when /INFO -- : Completed/ =~ @line # TODO 302
           :end
         else
           :message
@@ -20,12 +30,16 @@ module SugoiLogWatcher
       timestamp = $1
       pid = $2
 
-      %r!Rendered (.+?) \(([0-9.]+?)ms\)! =~ @line
-      path = $1
-      msec = $2
-      PersedObject.new(
-        params.merge(pid: pid, path: path, msec: msec)
-      )
+      case instance_of(@line)
+      when :sql
+        SQLObject.new(
+          params.merge(pid: pid)
+        )
+      else
+        PersedObject.new(
+          params.merge(pid: pid)
+        )
+      end
     end
 
     def valid?
@@ -38,6 +52,17 @@ module SugoiLogWatcher
         end
       end
       return true
+    end
+
+    private
+
+    def instance_of(line)
+      case
+      when line.include?('Load') && line.include?('SELECT')
+        :sql
+      else
+        :other
+      end
     end
   end
 end
