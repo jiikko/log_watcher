@@ -51,8 +51,8 @@ RSpec.describe SugoiLogWatcher::Aggregater do
     end
   end
 
-  context 'ログにmessage type: end がない時' do
-    it 'complated には含めない' do
+  context 'ログにmessage type: end がない時(不完全なログ)' do
+    it 'complated に格納しない' do
       log = <<~EOH
         I, [2018-01-05T21:12:17.293087 #68534]  INFO -- : source=rack-timeout id=991fdc297ee601a3c755ad2c70c3ff41 timeout=280000ms state=ready
         D, [2018-01-05T21:12:17.293680 #68534] DEBUG -- : source=rack-timeout id=991fdc297ee601a3c755ad2c70c3ff41 timeout=280000ms service=1ms state=active

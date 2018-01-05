@@ -73,13 +73,15 @@ module SugoiLogWatcher
       end
     end
 
+    # TODO 集計の間隔によって集計できなかったログを捨てないで次回aggregate時に再利用できるようにする
+    # bufferの削除タイミングは、タイムスタンプを見て古いものを削除する
     def aggregate
       chunk = {}
       @buffer.each { |object| (chunk[object.pid] ||= []); chunk[object.pid] << object }
-      valid_requests = []
+      requests = []
       chunk.each do |pid, objects|
         request = Request.new
-        valid_requests << request
+        requests << request
         objects.each do |object|
           if object.type == :start
             request.aggregation_status = :start
@@ -96,7 +98,10 @@ module SugoiLogWatcher
           end
         end
       end
-      valid_requests.find_all(&:valid?).each { |x| complated << x }
+
+      requests.find_all(&:valid?).each do |request|
+        complated << request
+      end
     end
   end
 end
