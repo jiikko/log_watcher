@@ -13,6 +13,7 @@ module SugoiLogWatcher
     end
 
     def count_sql_calls
+      return @queryes_map if @queryes_map
       queryes = logs.find_all { |x| x.is_a?(SugoiLogWatcher::ParsedObject::SQL) }
       queries_count = queryes.count
       queryes_map = {}
@@ -20,7 +21,7 @@ module SugoiLogWatcher
         queryes_map[q.sql] ||= 0
         queryes_map[q.sql] += 1
       end
-      queryes_map
+      @queryes_map = queryes_map
     end
 
     def started?
@@ -34,6 +35,13 @@ module SugoiLogWatcher
     def valid?
       # TODO loop減らせる
       !logs.detect { |l| l.type == :start }.nil? && !logs.detect { |l| l.type == :end }.nil?
+    end
+
+    def n1_queries
+      threshold = 3
+      count_sql_calls.find_all do |sql, count|
+        count > threshold
+      end
     end
   end
 
