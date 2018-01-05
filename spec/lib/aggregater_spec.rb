@@ -1,6 +1,23 @@
 require 'spec_helper'
 
 RSpec.describe SugoiLogWatcher::Aggregater do
+  context 'ログにmessage type: end がない時' do
+    it 'complated には含めない' do
+      log = <<~EOH
+        I, [2018-01-05T21:12:17.293087 #68534]  INFO -- : source=rack-timeout id=991fdc297ee601a3c755ad2c70c3ff41 timeout=280000ms state=ready
+        D, [2018-01-05T21:12:17.293680 #68534] DEBUG -- : source=rack-timeout id=991fdc297ee601a3c755ad2c70c3ff41 timeout=280000ms service=1ms state=active
+        I, [2018-01-05T21:12:17.294814 #68534]  INFO -- : Started GET "/" for 127.0.0.1 at 2018-01-05 21:12:17 +0900
+        D, [2018-01-05T21:12:17.510929 #68534] DEBUG -- :   ActiveRecord::SchemaMigration Load (6.7ms)  SELECT `schema_migrations`.* FROM `schema_migrations`
+        I, [2018-01-05T21:12:17.687017 #68534]  INFO -- : Processing by WelcomeController#index as */*
+        I, [2018-01-05T21:12:17.687297 #68534]  INFO -- :   Parameters: {"locale"=>"ja"}
+        D, [2018-01-05T21:12:17.739540 #68534] DEBUG -- :   Account Load (7.0ms)  SELECT  `accounts`.* FROM `accounts` LIMIT 20
+      EOH
+      aggregater = SugoiLogWatcher::Aggregater.new
+      log.split("\n").each { |l| aggregater.add(l) }
+      aggregater.aggregate
+      expect(aggregater.complated).to eq([])
+    end
+  end
   context '1つのログ' do
     it '集計すること' do
       log = <<~EOH
