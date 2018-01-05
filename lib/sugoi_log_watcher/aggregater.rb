@@ -1,6 +1,6 @@
 module SugoiLogWatcher
   class Request
-    attr_accessor :logs, :pid, :queries_count, :aggregation_status
+    attr_accessor :logs, :pid, :queries_count, :aggregation_status, :request_path
     def initialize
       self.logs = []
     end
@@ -22,6 +22,20 @@ module SugoiLogWatcher
         queryes_map[q.sql] += 1
       end
       @queryes_map = queryes_map
+    end
+
+    def finish
+      remove_pid_from_logs
+      set_request_path_from_logs
+      count_sql_calls
+    end
+
+    def set_request_path_from_logs
+      log = logs.first
+      if log.type != :start
+        raise '先頭のログがstart以外なのはおかしい'
+      end
+      self.request_path = log.request_path
     end
 
     def started?
@@ -77,8 +91,7 @@ module SugoiLogWatcher
           end
           # ログの探索を終了する
           if request.started? && object.type == :end
-            request.remove_pid_from_logs
-            request.count_sql_calls
+            request.finish
             break
           end
         end
