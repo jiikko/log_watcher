@@ -12,7 +12,7 @@ module SugoiLogWatcher
       end
     end
 
-    def count_queries
+    def count_sql_calls
       queryes = logs.find_all { |x| x.is_a?(SugoiLogWatcher::ParsedObject::SQL) }
       queries_count = queryes.count
       queryes_map = {}
@@ -58,7 +58,7 @@ module SugoiLogWatcher
           # ログの探索を終了する
           if request.valid && object.type == :end
             request.remove_pid_from_logs
-            request.count_queries
+            request.count_sql_calls
             break
           end
         end
