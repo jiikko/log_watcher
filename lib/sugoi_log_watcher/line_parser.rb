@@ -20,7 +20,7 @@ module SugoiLogWatcher
       timestamp = $1
       pid = $2
 
-      initialize_klass_of(@line) do |klass|
+      klass_for(@line) do |klass|
         klass.new(params.merge(pid: pid))
       end
     end
@@ -39,7 +39,7 @@ module SugoiLogWatcher
 
     private
 
-    def initialize_klass_of(line)
+    def klass_for(line)
       klass =
         case
         when line.include?('Load') && line.include?('SELECT')
