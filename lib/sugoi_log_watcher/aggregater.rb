@@ -69,7 +69,7 @@ module SugoiLogWatcher
     def add(line)
       line_parser = SugoiLogWatcher::LineParser.new(line)
       if line_parser.valid?
-        @buffer << line_parser.parse
+        buffer << line_parser.parse
       end
     end
 
@@ -77,7 +77,7 @@ module SugoiLogWatcher
     # bufferの削除タイミングは、タイムスタンプを見て古いものを削除する
     def aggregate
       chunk = {}
-      @buffer.each { |object| (chunk[object.pid] ||= []); chunk[object.pid] << object }
+      buffer.each { |object| (chunk[object.pid] ||= []); chunk[object.pid] << object }
       requests = []
       chunk.each do |pid, objects|
         request = Request.new
@@ -101,6 +101,7 @@ module SugoiLogWatcher
 
       requests.find_all(&:valid?).each do |request|
         complated << request
+        request.logs.each { |log| buffer.delete_if { |buff| buff == log } }
       end
     end
   end

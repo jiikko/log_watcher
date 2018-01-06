@@ -50,6 +50,57 @@ RSpec.describe SugoiLogWatcher::Aggregater do
       ])
     end
   end
+  context '1リクエストのログが2回分のログに分かれている時' do
+    it '2回目で集計した時に集計できること' do
+      log = <<~EOH
+        I, [2018-01-05T21:12:17.293087 #68534]  INFO -- : source=rack-timeout id=991fdc297ee601a3c755ad2c70c3ff41 timeout=280000ms state=ready
+        D, [2018-01-05T21:12:17.293680 #68534] DEBUG -- : source=rack-timeout id=991fdc297ee601a3c755ad2c70c3ff41 timeout=280000ms service=1ms state=active
+        I, [2018-01-05T21:12:17.294814 #68534]  INFO -- : Started GET "/" for 127.0.0.1 at 2018-01-05 21:12:17 +0900
+        D, [2018-01-05T21:12:17.510929 #68534] DEBUG -- :   ActiveRecord::SchemaMigration Load (6.7ms)  SELECT `schema_migrations`.* FROM `schema_migrations`
+        I, [2018-01-05T21:12:17.687017 #68534]  INFO -- : Processing by WelcomeController#index as */*
+        I, [2018-01-05T21:12:17.687297 #68534]  INFO -- :   Parameters: {"locale"=>"ja"}
+        D, [2018-01-05T21:12:17.739540 #68534] DEBUG -- :   Account Load (7.0ms)  SELECT  `accounts`.* FROM `accounts` LIMIT 20
+        D, [2018-01-05T21:12:17.823438 #68534] DEBUG -- :   Profile Load (21.5ms)  SELECT  `profiles`.* FROM `profiles` WHERE `profiles`.`account_id` = 843 LIMIT 1
+        D, [2018-01-05T21:12:17.846054 #68534] DEBUG -- :   Profile Load (0.3ms)  SELECT  `profiles`.* FROM `profiles` WHERE `profiles`.`account_id` = 844 LIMIT 1
+        D, [2018-01-05T21:12:17.847168 #68534] DEBUG -- :   Profile Load (0.2ms)  SELECT  `profiles`.* FROM `profiles` WHERE `profiles`.`account_id` = 845 LIMIT 1
+        D, [2018-01-05T21:12:17.848309 #68534] DEBUG -- :   Profile Load (0.2ms)  SELECT  `profiles`.* FROM `profiles` WHERE `profiles`.`account_id` = 846 LIMIT 1
+        D, [2018-01-05T21:12:17.849316 #68534] DEBUG -- :   Profile Load (0.2ms)  SELECT  `profiles`.* FROM `profiles` WHERE `profiles`.`account_id` = 847 LIMIT 1
+        D, [2018-01-05T21:12:17.850250 #68534] DEBUG -- :   Profile Load (0.1ms)  SELECT  `profiles`.* FROM `profiles` WHERE `profiles`.`account_id` = 848 LIMIT 1
+        D, [2018-01-05T21:12:17.851219 #68534] DEBUG -- :   Profile Load (0.2ms)  SELECT  `profiles`.* FROM `profiles` WHERE `profiles`.`account_id` = 849 LIMIT 1
+        D, [2018-01-05T21:12:17.852234 #68534] DEBUG -- :   Profile Load (0.2ms)  SELECT  `profiles`.* FROM `profiles` WHERE `profiles`.`account_id` = 850 LIMIT 1
+        D, [2018-01-05T21:12:17.853128 #68534] DEBUG -- :   Profile Load (0.2ms)  SELECT  `profiles`.* FROM `profiles` WHERE `profiles`.`account_id` = 851 LIMIT 1
+        D, [2018-01-05T21:12:17.854025 #68534] DEBUG -- :   Profile Load (0.2ms)  SELECT  `profiles`.* FROM `profiles` WHERE `profiles`.`account_id` = 852 LIMIT 1
+        D, [2018-01-05T21:12:17.854995 #68534] DEBUG -- :   Profile Load (0.2ms)  SELECT  `profiles`.* FROM `profiles` WHERE `profiles`.`account_id` = 853 LIMIT 1
+      EOH
+      aggregater = SugoiLogWatcher::Aggregater.new
+      log.split("\n").each { |l| aggregater.add(l) }
+      aggregater.aggregate
+      expect(aggregater.buffer).not_to eq([])
+      expect(aggregater.complated.size).to eq(0)
+
+      log = <<~EOH
+        I, [2017-12-31T17:17:43.225821 #68534]  INFO -- :   Rendered layouts/_airbrake_js.html.haml (1.4ms)
+        I, [2017-12-31T17:17:43.229540 #68534]  INFO -- :   Rendered layouts/_rem.ja.html.haml (2.6ms)
+        I, [2017-12-31T17:17:43.232852 #68534]  INFO -- :   Rendered shared/_ok.html.haml (1.7ms)
+        I, [2017-12-31T17:17:43.234780 #68534]  INFO -- :   Rendered shared/_v.html.haml (0.9ms)
+        I, [2017-12-31T17:17:43.235821 #68534]  INFO -- :   Rendered shared/_google_tag_manager.html.haml (0.0ms)
+        I, [2017-12-31T17:17:43.238552 #68534]  INFO -- :   Rendered shared/_faceb.html.haml (1.7ms)
+        I, [2017-12-31T17:17:43.244562 #68534]  INFO -- :   Rendered layouts/_topb.html.haml (5.0ms)
+        I, [2017-12-31T17:17:43.251875 #68534]  INFO -- :   Rendered layouts/_navi.html.haml (6.1ms)
+        I, [2017-12-31T17:17:43.256497 #68534]  INFO -- :   Rendered layouts/_brea.html.haml (3.1ms)
+        I, [2017-12-31T17:17:43.268275 #68534]  INFO -- :   Rendered layouts/_foo.html.haml (10.5ms)
+        I, [2017-12-31T17:17:43.271796 #68534]  INFO -- :   Rendered layouts/_cop.html.haml (2.1ms)
+        I, [2017-12-31T17:17:43.274854 #68534]  INFO -- :   Rendered layouts/_bot.html.haml (2.0ms)
+        I, [2017-12-31T17:17:43.278307 #68534]  INFO -- :   Rendered shared/_yaho.html.haml (1.9ms)
+        I, [2018-01-05T21:12:18.832405 #68534]  INFO -- : Completed 200 OK in 1145ms (Views: 956.8ms | ActiveRecord: 72.5ms)
+      EOH
+      log.split("\n").each { |l| aggregater.add(l) }
+      aggregater.aggregate
+      expect(aggregater.buffer).to eq([])
+      expect(aggregater.complated.size).to eq(1)
+      expect(aggregater.complated.last.n1_queries).not_to eq([])
+    end
+  end
 
   context 'ログにmessage type: end がない時(不完全なログ)' do
     it 'complated に格納しない' do
