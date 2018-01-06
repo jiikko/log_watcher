@@ -16,7 +16,7 @@ module SugoiLogWatcher
           @sql = $1
           @sql = mask(@sql)
         else
-          raise 'can not perse sql!!'
+          raise "can not perse sql!!(#{@raw_data.codepoints})"
         end
       end
 

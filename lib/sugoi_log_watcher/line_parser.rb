@@ -6,7 +6,8 @@ module SugoiLogWatcher
 
     def parse
       params = {}
-      params[:raw_data] = @line
+      # ANSI Escape Sequenceの削除
+      params[:raw_data] = @line.gsub(/\e\[\d{1,3}[mK]/, '')
       params[:type] =
         case
         when /INFO -- : Started/ =~ @line

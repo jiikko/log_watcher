@@ -11,7 +11,14 @@ module SugoiLogWatcher
         EOH
         return
       end
-      puts 'start'
+      if cmd_args[1] == '--debug'
+        @debug_mode = true
+      end
+      if @debug_mode
+        puts 'start(debug)'
+      else
+        puts 'start'
+      end
 
       start_watching
     end
@@ -21,15 +28,23 @@ module SugoiLogWatcher
       f = File.open(@path, 'r')
       f.seek(0, IO::SEEK_END)
 
+      t = Thread.start do
+        loop do
+          aggregater.aggregate
+          sleep(0.5)
+        end
+      end
+
       loop do
         select([f]) # blockしない
         begin
           line = f.readline
+          aggregater.add(line)
         rescue EOFError => e
-          sleep(1)
+          sleep(0.5)
         end
-        aggregater.add(line)
       end
+      t.join
     end
   end
 end

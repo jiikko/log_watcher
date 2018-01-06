@@ -30,12 +30,11 @@ module SugoiLogWatcher
       count_sql_calls
     end
 
-    def set_request_path_from_logs
-      log = logs.first
-      if log.type != :start
-        raise '先頭のログがstart以外なのはおかしい'
+    def n1_queries
+      threshold = 3
+      count_sql_calls.find_all do |sql, count|
+        count > threshold
       end
-      self.request_path = log.request_path
     end
 
     def started?
@@ -51,11 +50,14 @@ module SugoiLogWatcher
       !logs.detect { |l| l.type == :start }.nil? && !logs.detect { |l| l.type == :end }.nil?
     end
 
-    def n1_queries
-      threshold = 3
-      count_sql_calls.find_all do |sql, count|
-        count > threshold
+    private
+
+    def set_request_path_from_logs
+      log = logs.first
+      if log.type != :start
+        raise '先頭のログがstart以外なのはおかしい'
       end
+      self.request_path = log.request_path
     end
   end
 
@@ -64,6 +66,7 @@ module SugoiLogWatcher
     def initialize
       @buffer = []
       self.complated = []
+      init_notification
     end
 
     def add(line)
@@ -73,9 +76,14 @@ module SugoiLogWatcher
       end
     end
 
+    def init_notification
+      @notification = Notification.new
+    end
+
     # TODO 集計の間隔によって集計できなかったログを捨てないで次回aggregate時に再利用できるようにする
     # bufferの削除タイミングは、タイムスタンプを見て古いものを削除する
     def aggregate
+      self.complated = []
       chunk = {}
       buffer.each { |object| (chunk[object.pid] ||= []); chunk[object.pid] << object }
       requests = []
@@ -102,6 +110,7 @@ module SugoiLogWatcher
       requests.find_all(&:valid?).each do |request|
         complated << request
         request.logs.each { |log| buffer.delete_if { |buff| buff == log } }
+        puts 'Found N+1' unless request.n1_queries.empty?
       end
     end
   end
