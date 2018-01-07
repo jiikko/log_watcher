@@ -96,8 +96,6 @@ module SugoiLogWatcher
       @notification = Notification.new
     end
 
-    # TODO 集計の間隔によって集計できなかったログを捨てないで次回aggregate時に再利用できるようにする
-    # bufferの削除タイミングは、タイムスタンプを見て古いものを削除する
     def aggregate
       self.complated = []
       chunk = {}
