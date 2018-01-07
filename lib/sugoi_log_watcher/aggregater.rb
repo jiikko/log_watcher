@@ -1,6 +1,6 @@
 module SugoiLogWatcher
   class Request
-    attr_accessor :logs, :pid, :queries_count, :aggregation_status, :request_path
+    attr_accessor :logs, :pid, :queries_count, :aggregation_status, :request_path, :responsetime
     def initialize
       self.logs = []
     end
@@ -27,6 +27,7 @@ module SugoiLogWatcher
     def finish
       remove_pid_from_logs
       set_request_path_from_logs
+      set_responsetime_from_logs
       count_sql_calls
     end
 
@@ -59,6 +60,14 @@ module SugoiLogWatcher
       end
       self.request_path = log.request_path
     end
+
+    def set_responsetime_from_logs
+      log = logs.last
+      if log.type != :end
+        raise '最後のログがend以外なのはおかしい'
+      end
+      self.responsetime = log.responsetime
+    end
   end
 
   class Aggregater
@@ -67,6 +76,13 @@ module SugoiLogWatcher
       @buffer = []
       self.complated = []
       init_notification
+      remove_old_complated
+
+      Signal.trap(:INT, 'TerminalNotifier.remove(Process.pid) && exit(1)')
+    end
+
+    def remove_old_complated
+      # TODO
     end
 
     def add(line)
@@ -111,6 +127,7 @@ module SugoiLogWatcher
         complated << request
         request.logs.each { |log| buffer.delete_if { |buff| buff == log } }
         @notification.found_n1_queries unless request.n1_queries.empty?
+        @notification.notify(request)
       end
     end
   end

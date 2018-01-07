@@ -1,4 +1,8 @@
 # SugoiLogWatcher
+## Required
+* MacOS
+
+##
 * ログを監視してボトルネックを自動検出する
 * 機能
   * railsのログを収集し、実行速度が閾値を超える行を通知する

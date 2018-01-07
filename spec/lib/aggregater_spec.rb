@@ -1,6 +1,10 @@
 require 'spec_helper'
 
 RSpec.describe SugoiLogWatcher::Aggregater do
+  after(:all) do
+    TerminalNotifier.remove(Process.pid)
+  end
+
   context 'N+1がある時' do
     it 'N+1を検出すること' do
       log = <<~EOH
@@ -99,6 +103,9 @@ RSpec.describe SugoiLogWatcher::Aggregater do
       expect(aggregater.buffer).to eq([])
       expect(aggregater.complated.size).to eq(1)
       expect(aggregater.complated.last.n1_queries).not_to eq([])
+      expect(aggregater.complated.last.responsetime).to eq(
+        :total=>"1145", "Views"=>"956.8", "ActiveRecord"=>"72.5"
+      )
     end
   end
 
