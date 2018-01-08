@@ -14,7 +14,7 @@ module SugoiLogWatcher
       def perse!
         case type
         when :start
-          %r!Started (?::GET|POST|PATCH) \"([^"]+?)\"! =~ @raw_data
+          %r!Started (?:GET|POST|PATCH) \"([^"]+?)\"! =~ @raw_data
           self.request_path = $1
         when :end
           @responsetime = {}

@@ -124,7 +124,6 @@ module SugoiLogWatcher
       requests.find_all(&:valid?).each do |request|
         complated << request
         request.logs.each { |log| buffer.delete_if { |buff| buff == log } }
-        @notification.found_n1_queries unless request.n1_queries.empty?
         @notification.notify(request)
       end
     end

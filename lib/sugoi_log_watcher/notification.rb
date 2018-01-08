@@ -1,11 +1,17 @@
 module SugoiLogWatcher
   class Notification
-    def found_n1_queries
-      puts 'Found N+1'
+    def notify(request)
+      unless request.n1_queries.empty?
+        TerminalNotifier.notify(message_n1_queries(request), group: Process.pid)
+      end
     end
 
-    def notify(request)
-      TerminalNotifier.notify("#{request.responsetime[:total]}ms かかったよ", :group => Process.pid)
+    private
+
+    def message_n1_queries(request)
+      <<~EOH
+        #{request.request_path} で N+1 がみつかりました
+      EOH
     end
   end
 end
